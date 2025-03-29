@@ -1,6 +1,7 @@
 package com.market.commander.quant.client;
 
 import com.market.commander.quant.dto.UserRequestDto;
+import com.market.commander.quant.dto.UserResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
