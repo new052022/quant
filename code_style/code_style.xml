@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<code_scheme name="CustomCodeStyle" version="173">
+    <codeStyleSettings language="Java">
+        <option name="RIGHT_MARGIN" value="120" />
+        <option name="INDENT_SIZE" value="4" />
+        <option name="TAB_SIZE" value="4" />
+        <option name="CONTINUATION_INDENT_SIZE" value="8" />
+        <option name="USE_TAB_CHARACTER" value="false" />
+        <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="2" />
+        <option name="KEEP_BLANK_LINES_IN_CODE" value="2" />
+        <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="1" />
+        <option name="ALIGN_MULTILINE_PARAMETERS" value="true" />
+        <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
+        <option name="ALIGN_MULTILINE_TERNARY_OPERATION" value="true" />
+        <option name="ALIGN_MULTILINE_ASSIGNMENT" value="true" />
+        <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
+        <option name="ALIGN_MULTILINE_METHOD_BRACKETS" value="true" />
+        <option name="METHOD_PARAMETERS_WRAP" value="1" />
+        <option name="METHOD_CALL_CHAIN_WRAP" value="1" />
+        <option name="METHOD_CALL_ARGUMENTS_WRAP" value="1" />
+        <option name="EXTENDS_LIST_WRAP" value="1" />
+        <option name="ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION" value="true" />
+        <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
+        <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true" />
+        <option name="KEEP_SIMPLE_CLASSES_IN_ONE_LINE" value="false" />
+        <option name="KEEP_SIMPLE_LAMBDAS_IN_ONE_LINE" value="true" />
+    </codeStyleSettings>
+</code_scheme>
