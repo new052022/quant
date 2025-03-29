@@ -1,4 +1,4 @@
-package com.market.commander.quant.Service;
+package com.market.commander.quant.service;
 
 import com.market.commander.quant.dto.RunSessionResponseDto;
 import com.market.commander.quant.dto.RunStrategyRequestDto;

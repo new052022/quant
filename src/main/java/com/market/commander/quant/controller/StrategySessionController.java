@@ -1,6 +1,6 @@
 package com.market.commander.quant.controller;
 
-import com.market.commander.quant.Service.StrategySessionService;
+import com.market.commander.quant.service.StrategySessionService;
 import com.market.commander.quant.dto.RunSessionResponseDto;
 import com.market.commander.quant.dto.RunStrategyRequestDto;
 import lombok.RequiredArgsConstructor;

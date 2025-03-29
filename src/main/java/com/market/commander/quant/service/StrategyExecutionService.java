@@ -1,4 +1,4 @@
-package com.market.commander.quant.Service;
+package com.market.commander.quant.service;
 
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;

@@ -1,4 +1,4 @@
-package com.market.commander.quant.Service;
+package com.market.commander.quant.service;
 
 import com.market.commander.quant.client.StrategyClient;
 import com.market.commander.quant.dto.StrategyParamsRequestDto;
