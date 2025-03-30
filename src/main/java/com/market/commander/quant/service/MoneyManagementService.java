@@ -53,18 +53,12 @@ public class MoneyManagementService {
     @Transactional(readOnly = true) // Often, checks don't need write transactions unless fetching lazy data
     public Map<Order, OrderStatus> checkOrdersConditions(@NonNull List<Order> ordersToCheck,
                                                          @NonNull StrategySession session) {
-        // 1. Initial Validations
-        if (ordersToCheck.isEmpty()) {
-            log.warn("No orders provided to check conditions for session {}", session.getId());
-            return Collections.emptyMap();
-        }
         User user = session.getUser();
         if (user == null || user.getExternalId() == null) {
             log.error("User or externalId is missing for session {}. Cannot perform checks.", session.getId());
             // Indicate failure for all orders - responsibility of caller to handle this map
             return createResultMapForAll(ordersToCheck, OrderStatus.FAILED, "Missing User Info");
         }
-
         // 2. Fetch and Prepare Context Data
         Optional<TradingContext> contextOpt = this.prepareTradingContext(user, session.getExchange());
         if (contextOpt.isEmpty()) {
@@ -72,7 +66,6 @@ public class MoneyManagementService {
             return createResultMapForAll(ordersToCheck, OrderStatus.FAILED, "Data Fetching Error");
         }
         TradingContext context = contextOpt.get();
-
         // 3. Extract Essential Info (Balance, Settings)
         Optional<BalanceInfo> usdtBalanceInfoOpt = context.getUsdtBalanceInfo();
         if (usdtBalanceInfoOpt.isEmpty()) {
@@ -100,6 +93,7 @@ public class MoneyManagementService {
         ordersToCheck.forEach(order -> {
             order.setSize((usdtBalance.totalBalance()
                     .add(usdtBalance.unPnl()))
+                    .multiply(settings.leverage())
                     .multiply(settings.getOrderSizePercentDecimal().get()));
             log.info("Order size for symbol {} is {}", order.getParams().getSymbol(), order.getSize());
         });
