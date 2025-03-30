@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/3032025_create_users_table.sql
+  - include:
+      file: db/changelog/3032025_create_strategy_session_table.sql
+  - include:
+      file: db/changelog/3032025_create_orders_table.sql
+  - include:
+      file: db/changelog/3032025_create_strategy_result.sql

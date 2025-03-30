@@ -1,12 +1,13 @@
 package com.market.commander.quant.service;
 
 import com.market.commander.quant.client.OrdersClient;
-import com.market.commander.quant.dto.OpenPositionDto;
+import com.market.commander.quant.dto.AccountBalanceDto;
+import com.market.commander.quant.dto.GetAssetsDataRequestDto;
+import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
+import com.market.commander.quant.dto.UserResponseDto;
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;
-import com.market.commander.quant.entities.StrategySession;
-import com.market.commander.quant.entities.User;
 import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class OrderService {
     private final OrdersClient ordersClient;
 
     @Transactional
-    public List<Order> createOrders(List<StrategyResult> results, StrategySession session) {
+    public List<Order> createOrders(List<StrategyResult> results) {
         List<Order> newOrders = results.stream()
                 .map(result -> Order.builder()
                         .status(OrderStatus.NEW)
@@ -44,8 +45,27 @@ public class OrderService {
 
     }
 
-    public List<OpenPositionDto> getOpenOrdersAndPositions(User user) {
-        List<OpenPositionResponseDto> openPositions = ordersClient.getOpenPositions(user.getExternalId());
+    public List<OpenOrderResponseDto> getOpenOrdersAndPositions(UserResponseDto userDetails) {
+        return ordersClient.getOpenOrders(GetAssetsDataRequestDto.builder()
+                .encodedApiKey(userDetails.getApiKey())
+                .encodedSecretKey(userDetails.getSecretKey())
+                .exchange(userDetails.getExchangeName())
+                .build());
+    }
 
+    public List<OpenPositionResponseDto> getOpenPositions(UserResponseDto userDetails) {
+        return ordersClient.getOpenPositions(GetAssetsDataRequestDto.builder()
+                .encodedApiKey(userDetails.getApiKey())
+                .encodedSecretKey(userDetails.getSecretKey())
+                .exchange(userDetails.getExchangeName())
+                .build());
+    }
+
+    public List<AccountBalanceDto> getBalances(UserResponseDto userDetails) {
+        return ordersClient.getBalance(GetAssetsDataRequestDto.builder()
+                .encodedApiKey(userDetails.getApiKey())
+                .encodedSecretKey(userDetails.getSecretKey())
+                .exchange(userDetails.getExchangeName())
+                .build());
     }
 }

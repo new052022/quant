@@ -8,11 +8,13 @@ import com.market.commander.quant.entities.StrategySession;
 import com.market.commander.quant.mapper.StrategyResultsMapper;
 import com.market.commander.quant.repository.StrategyResultsRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StrategyResultsService {
@@ -26,7 +28,10 @@ public class StrategyResultsService {
     @Transactional
     public List<StrategyResult> getStrategyResults(StrategySession session) {
         StrategyParamsRequestDto request = this.buildStrategyParamsRequest(session);
+        log.info("Built request to strategy service: {}", request);
         StrategyResultsResponseDto strategyResults = strategyClient.getStrategyResults(request);
+        strategyResults.getOrdersList().forEach(order ->
+                log.info("Get order plan from strategy service with params: {}", order));
         List<StrategyResult> results = strategyResultsMapper.toStrategyResults(strategyResults, session);
         session.getResults().addAll(results);
         return this.saveResults(results);

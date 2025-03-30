@@ -11,6 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserResponseDto {
 
+    private Long userId;
 
+    private String apiKey;
+
+    private String secretKey;
+
+    private String exchangeName;
 
 }

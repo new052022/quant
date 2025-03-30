@@ -52,4 +52,30 @@ public class StrategyParamsRequestDto {
 
     private Double volatilityCoeff;
 
+    @Override
+    public String toString() {
+        return "StrategyParamsRequestDto{" +
+                "period=" + period +
+                ", timeframe='" + timeframe + '\'' +
+                ", volume=" + volume +
+                ", leverage=" + leverage +
+                ", strategyType=" + strategyType +
+                ", maxAtrPercent=" + maxAtrPercent +
+                ", minAtrPercent=" + minAtrPercent +
+                ", orderSizePercent=" + orderSizePercent +
+                ", maxAssetOpenOrdersSizePercent=" + maxAssetOpenOrdersSizePercent +
+                ", userId=" + userId +
+                ", exchange='" + exchange + '\'' +
+                ", fastEmaPeriod=" + fastEmaPeriod +
+                ", slowEmaPeriod=" + slowEmaPeriod +
+                ", shortAtrPeriod=" + shortAtrPeriod +
+                ", longAtrPeriod=" + longAtrPeriod +
+                ", entryRangeDivisor=" + entryRangeDivisor +
+                ", hitPricePercent=" + hitPricePercent +
+                ", atrStopLossCoefficient=" + atrStopLossCoefficient +
+                ", atrTakeProfitCoefficient=" + atrTakeProfitCoefficient +
+                ", volatilityCoeff=" + volatilityCoeff +
+                '}';
+    }
+
 }

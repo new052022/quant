@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,7 +36,10 @@ public class StrategyExecutionService {
             try {
                 if (this.checkSessionStatus(session)) {
                     List<StrategyResult> results = strategyResultsService.getStrategyResults(session);
-                    List<Order> orders = orderService.createOrders(results, session);
+                    if(CollectionUtils.isEmpty(results)){
+                        return;
+                    }
+                    List<Order> orders = orderService.createOrders(results);
                     moneyManagementService.checkOrdersConditions(orders, session);
                     orderService.openOrders(orders);
                 } else {

@@ -19,4 +19,14 @@ public class StrategyResultResponseDto {
 
     private Double stopPrice;
 
+    @Override
+    public String toString() {
+        return "StrategyResultResponseDto{" +
+                "minEntryPrice=" + minEntryPrice +
+                ", symbol='" + symbol + '\'' +
+                ", side='" + side + '\'' +
+                ", stopPrice=" + stopPrice +
+                '}';
+    }
+
 }

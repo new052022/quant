@@ -19,6 +19,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @Table(name = "orders")
@@ -33,7 +35,7 @@ public class Order extends BaseEntity {
     private Long id;
 
     @Column(name = "size")
-    private Double size;
+    private BigDecimal size;
 
     @Column(name = "open_price")
     private Double openPrice;

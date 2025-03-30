@@ -1,0 +1,46 @@
+server:
+  port: 8008
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+spring:
+  application:
+    name: quant
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    liquibase:
+      enabled: true
+      drop-first: false
+      change-log: classpath:db/changelog/db.changelog-master.yaml
+      default-schema: public
+  datasource:
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASS}
+    url: jdbc:postgresql://${DB_HOST}/quant
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+exchange-url:
+  bingx-perpetual: https://open-api.bingx.com
+  binance-perpetual:
+    v1: https://fapi.binance.com/fapi/v1
+
+secret-key: ${SECRET_NUMBER}
+
+algorithm: ${ALGORITHM}
+
+strategy-service:
+  url: ${STRATEGY_URL}
+orders-service:
+  url: ${ORDERS_URL}
+users-service:
+  url: ${USERS_URL}
