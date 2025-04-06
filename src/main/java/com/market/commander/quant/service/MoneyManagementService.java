@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -138,7 +139,7 @@ public class MoneyManagementService {
                     .add(usdtBalance.unPnl())
                     .multiply(settings.leverage())
                     .multiply(settings.getOrderSizePercentDecimal().get())
-                    .divide(BigDecimal.valueOf(order.getOpenPrice()));
+                    .divide(BigDecimal.valueOf(order.getOpenPrice()), RoundingMode.HALF_UP);
             log.info("market lot size: {}; and asset size: {}", marketLotSize, assetSize);
             return RoundNumbers.toAssetSize(marketLotSize, assetSize);
         } else {
