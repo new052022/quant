@@ -2,6 +2,7 @@ package com.market.commander.quant.service;
 
 import com.market.commander.quant.client.StrategyClient;
 import com.market.commander.quant.dto.StrategyParamsRequestDto;
+import com.market.commander.quant.dto.StrategyResultResponseDto;
 import com.market.commander.quant.dto.StrategyResultsResponseDto;
 import com.market.commander.quant.entities.StrategyResult;
 import com.market.commander.quant.entities.StrategySession;
@@ -29,7 +30,14 @@ public class StrategyResultsService {
     public List<StrategyResult> getStrategyResults(StrategySession session) {
         StrategyParamsRequestDto request = this.buildStrategyParamsRequest(session);
         log.info("Built request to strategy service: {}", request);
-        StrategyResultsResponseDto strategyResults = strategyClient.getStrategyResults(request);
+//        StrategyResultsResponseDto strategyResults = strategyClient.getStrategyResults(request);
+        StrategyResultsResponseDto strategyResults = new StrategyResultsResponseDto();
+        strategyResults.setOrdersList(List.of(StrategyResultResponseDto.builder()
+                        .minEntryPrice(0.23773728229127475)
+                        .side("SELL")
+                        .symbol("TRXUSDT")
+                        .stopPrice(0.2397215590388481)
+                .build()));
         strategyResults.getOrdersList().forEach(order ->
                 log.info("Get order plan from strategy service with params: {}", order));
         List<StrategyResult> results = strategyResultsMapper.toStrategyResults(strategyResults, session);
