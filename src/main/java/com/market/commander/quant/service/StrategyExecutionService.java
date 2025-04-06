@@ -37,6 +37,7 @@ public class StrategyExecutionService {
                 if (this.checkSessionStatus(session)) {
                     List<StrategyResult> results = strategyResultsService.getStrategyResults(session);
                     if (CollectionUtils.isEmpty(results)) {
+                        log.info("The results array is empty from strategy service");
                         return;
                     }
                     List<Order> orders = orderService.createOrders(results);
