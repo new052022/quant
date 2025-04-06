@@ -68,6 +68,7 @@ public class StrategySessionService {
         StrategySession session = strategySessionRepository.findByUser_IdAndExchangeAndStatus(
                 request.getUserId(), request.getExchange(), SessionStatus.ACTIVE);
         session.setStatus(SessionStatus.INACTIVE);
+        session.setEndTime(LocalDateTime.now());
         strategySessionRepository.save(session);
     }
 }
