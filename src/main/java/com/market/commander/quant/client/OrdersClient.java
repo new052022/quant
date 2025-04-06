@@ -18,6 +18,6 @@ public interface OrdersClient {
     @PostMapping("/order_execution/open-positions")
     List<OpenPositionResponseDto> getOpenPositions(GetAssetsDataRequestDto request);
 
-    @PostMapping("/order_execution/balance")
+    @PostMapping("/order-execution/balance")
     List<AccountBalanceDto> getBalance(GetAssetsDataRequestDto request);
 }
