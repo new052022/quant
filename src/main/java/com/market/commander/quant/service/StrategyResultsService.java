@@ -30,14 +30,7 @@ public class StrategyResultsService {
     public List<StrategyResult> getStrategyResults(StrategySession session) {
         StrategyParamsRequestDto request = this.buildStrategyParamsRequest(session);
         log.info("Built request to strategy service: {}", request);
-//        StrategyResultsResponseDto strategyResults = strategyClient.getStrategyResults(request);
-        StrategyResultsResponseDto strategyResults = new StrategyResultsResponseDto();
-        strategyResults.setOrdersList(List.of(StrategyResultResponseDto.builder()
-                        .minEntryPrice(0.23773728229127475)
-                        .side("SELL")
-                        .symbol("TRXUSDT")
-                        .stopPrice(0.2397215590388481)
-                .build()));
+        StrategyResultsResponseDto strategyResults = strategyClient.getStrategyResults(request);
         strategyResults.getOrdersList().forEach(order ->
                 log.info("Get order plan from strategy service with params: {}", order));
         List<StrategyResult> results = strategyResultsMapper.toStrategyResults(strategyResults, session);
