@@ -103,6 +103,8 @@ public class MoneyManagementService {
                 .collect(Collectors.toMap(AssetContractResponseDto::getSymbol, Function.identity()));
         ordersToCheck.forEach(order -> {
             try {
+                log.info("Start setting order size and price for symbol {} with order params: {} size; and price: {}",
+                        order.getParams().getSymbol(), order.getSize(), order.getOpenPrice());
                 order.setSize((this.getSize(usdtBalance, settings, order, paramsBySymbol)));
                 order.setOpenPrice(this.getOpePrice(order, paramsBySymbol));
                 log.info("Order price for symbol {} is {}", order.getParams().getSymbol(), order.getSize());
@@ -133,6 +135,7 @@ public class MoneyManagementService {
                 .multiply(settings.leverage())
                 .multiply(settings.getOrderSizePercentDecimal().get())
                 .divide(BigDecimal.valueOf(order.getOpenPrice()));
+        log.info("market lot size: {}; and asset size: {}", marketLotSize, assetSize);
         return RoundNumbers.toAssetSize(marketLotSize, assetSize);
     }
 
