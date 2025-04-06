@@ -27,7 +27,7 @@ public class StrategySessionController {
     }
 
     @SneakyThrows
-    @PostMapping
+    @PostMapping("/stop")
     public ResponseEntity<HttpStatus> stopSession(@RequestBody StopSessionRequestDto request) {
         strategySessionService.stopSession(request);
         return ResponseEntity.ok(HttpStatus.OK);
