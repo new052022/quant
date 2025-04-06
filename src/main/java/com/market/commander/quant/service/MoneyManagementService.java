@@ -1,6 +1,9 @@
 package com.market.commander.quant.service;
 
+import com.market.commander.quant.client.MarketClient;
 import com.market.commander.quant.dto.AccountBalanceDto;
+import com.market.commander.quant.dto.AssetContractResponseDto;
+import com.market.commander.quant.dto.FilterTypeResonseDto;
 import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
 import com.market.commander.quant.dto.UserResponseDto;
@@ -11,6 +14,7 @@ import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategySession;
 import com.market.commander.quant.entities.User;
 import com.market.commander.quant.enums.OrderStatus;
+import com.market.commander.quant.util.RoundNumbers;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +41,8 @@ public class MoneyManagementService {
     private final OrderService orderService;
 
     private final UsersService usersService;
+
+    private final MarketClient marketClient;
 
     private final NotionalCalculator notionalCalculator;
 
@@ -76,7 +82,7 @@ public class MoneyManagementService {
 
         SessionSettings settings = new SessionSettings(session);
 
-        this.setOrdersSize(ordersToCheck, usdtBalance, settings);
+        this.setOrdersSize(ordersToCheck, usdtBalance, settings, session);
         // 4. Group Orders to Check
         Map<String, List<Order>> ordersToCheckBySymbol = ordersToCheck.stream()
                 .filter(o -> o != null && o.getParams() != null && o.getParams().getSymbol() != null)
@@ -91,15 +97,43 @@ public class MoneyManagementService {
     }
 
     private void setOrdersSize(@NonNull List<Order> ordersToCheck, BalanceInfo usdtBalance,
-                               SessionSettings settings) {
+                               SessionSettings settings, StrategySession session) {
+        List<AssetContractResponseDto> assetsByParams = marketClient.getAssetsByParams(session.getExchange());
+        Map<String, AssetContractResponseDto> paramsBySymbol = assetsByParams.stream()
+                .collect(Collectors.toMap(AssetContractResponseDto::getSymbol, Function.identity()));
         ordersToCheck.forEach(order -> {
-            order.setSize((usdtBalance.totalBalance()
-                    .add(usdtBalance.unPnl()))
-                    .multiply(settings.leverage())
-                    .multiply(settings.getOrderSizePercentDecimal().get())
-                    .divide(BigDecimal.valueOf(order.getOpenPrice())));
-            log.info("Order price for symbol {} is {}", order.getParams().getSymbol(), order.getSize());
+            try {
+                order.setSize((this.getSize(usdtBalance, settings, order, paramsBySymbol)));
+                order.setOpenPrice(this.getOpePrice(order, paramsBySymbol));
+                log.info("Order price for symbol {} is {}", order.getParams().getSymbol(), order.getSize());
+            } catch (Exception e) {
+                log.error("Error during asset and price size setting in money management service with message: {}", e.getMessage());
+            }
         });
+    }
+
+    private Double getOpePrice(Order order, Map<String, AssetContractResponseDto> paramsBySymbol) {
+        return RoundNumbers.toOpenPriceByAssetParam(
+                paramsBySymbol.get(order.getParams().getSymbol()).getFilters()
+                        .stream()
+                        .filter(filter -> filter.getFilterType().equalsIgnoreCase("PRICE_FILTER"))
+                        .map(FilterTypeResonseDto::getTickSize)
+                        .findFirst().orElse(0.01), order.getOpenPrice());
+    }
+
+    private BigDecimal getSize(BalanceInfo usdtBalance, SessionSettings settings, Order order,
+                               Map<String, AssetContractResponseDto> paramsBySymbol) {
+        AssetContractResponseDto assetContractResponseDto = paramsBySymbol.get(order.getParams().getSymbol());
+        Double marketLotSize = assetContractResponseDto.getFilters().stream()
+                .filter(filter -> filter.getFilterType().equalsIgnoreCase("MARKET_LOT_SIZE"))
+                .map(FilterTypeResonseDto::getStepSize)
+                .findFirst().orElse(1.0);
+        BigDecimal assetSize = usdtBalance.totalBalance()
+                .add(usdtBalance.unPnl())
+                .multiply(settings.leverage())
+                .multiply(settings.getOrderSizePercentDecimal().get())
+                .divide(BigDecimal.valueOf(order.getOpenPrice()));
+        return RoundNumbers.toAssetSize(marketLotSize, assetSize);
     }
 
     // ========================================================================

@@ -45,4 +45,7 @@ orders-service:
   url: ${ORDERS_URL}
 users-service:
   url: ${USERS_URL}
+market-data:
+  url: ${MARKET_URL}
+  asset-details: ${ASSET_DETAILS}
 
