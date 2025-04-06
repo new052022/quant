@@ -45,3 +45,4 @@ orders-service:
   url: ${ORDERS_URL}
 users-service:
   url: ${USERS_URL}
+
