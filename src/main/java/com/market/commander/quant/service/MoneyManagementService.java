@@ -82,6 +82,7 @@ public class MoneyManagementService {
                 .filter(o -> o != null && o.getParams() != null && o.getParams().getSymbol() != null)
                 .collect(groupingBy(o -> o.getParams().getSymbol()));
         // 5. Perform Checks Based on Mode (Percent Limit vs Insufficient Funds)
+        log.info("Use percent limit checking: {}", settings.usePercentLimit());
         if (settings.usePercentLimit()) {
             return checkPositionLimitPerSymbol(ordersToCheckBySymbol, context, settings, usdtBalance);
         } else {

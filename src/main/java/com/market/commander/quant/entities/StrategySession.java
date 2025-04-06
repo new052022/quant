@@ -57,7 +57,7 @@ public class StrategySession extends BaseEntity{
     private Double orderSizePercent;
 
     @Column(name = "max_asset_positions_size_percent")
-    private Double maxAssetPositionsSizePercent;
+    private Double maxAssetOpenOrdersSizePercent;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
