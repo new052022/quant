@@ -71,7 +71,9 @@ pipeline {
                          "STRATEGY_URL=${env.STRATEGY_URL}",
                          "RUN_STRATEGY=${env.RUN_STRATEGY}",
                          "ORDERS_URL=${env.ORDERS_URL}",
-                         "USERS_URL=${env.USERS_URL}"
+                         "USERS_URL=${env.USERS_URL}",
+                         "MARKET_URL=${env.MARKET_URL}",
+                         "ASSET_DETAILS=${env.ASSET_DETAILS}"
                     ]) {
                         sh '''
                         echo "Stopping and removing previous container..."
@@ -91,6 +93,8 @@ pipeline {
                             -e RUN_STRATEGY="$RUN_STRATEGY" \
                             -e ORDERS_URL="$ORDERS_URL" \
                             -e USERS_URL="$USERS_URL" \
+                            -e MARKET_URL="$MARKET_URL" \
+                            -e ASSET_DETAILS="$ASSET_DETAILS" \
                             ${registry}:${BUILD_NUMBER}
                         '''
                     }
