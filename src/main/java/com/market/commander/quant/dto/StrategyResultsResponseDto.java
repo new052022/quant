@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StrategyResultsResponseDto {
 
-    List<StrategyResultResponseDto> ordersList = new ArrayList<>();
+    private List<StrategyResultResponseDto> ordersList = new ArrayList<>();
 
 }

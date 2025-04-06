@@ -10,6 +10,3 @@ CREATE TABLE orders (
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
-ALTER TABLE orders
-    ADD CONSTRAINT fk_orders_strategy_result
-    FOREIGN KEY (strategy_result_id) REFERENCES strategy_result (id);

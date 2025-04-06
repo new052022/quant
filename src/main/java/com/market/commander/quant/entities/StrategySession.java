@@ -89,7 +89,7 @@ public class StrategySession extends BaseEntity{
     @Column(name = "volatility_coefficient")
     private Double volatilityCoeff;
 
-    @Column(name = "hoursToRun")
+    @Column(name = "hours_to_run")
     private Long hoursToRun;
 
     @Column(name = "status")

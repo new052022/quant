@@ -36,7 +36,7 @@ public class StrategyExecutionService {
             try {
                 if (this.checkSessionStatus(session)) {
                     List<StrategyResult> results = strategyResultsService.getStrategyResults(session);
-                    if(CollectionUtils.isEmpty(results)){
+                    if (CollectionUtils.isEmpty(results)) {
                         return;
                     }
                     List<Order> orders = orderService.createOrders(results);

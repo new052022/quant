@@ -40,6 +40,7 @@ algorithm: ${ALGORITHM}
 
 strategy-service:
   url: ${STRATEGY_URL}
+  run-strategy: ${RUN_STRATEGY}
 orders-service:
   url: ${ORDERS_URL}
 users-service:

@@ -19,7 +19,7 @@ CREATE TABLE strategy_session (
     entry_range_divisor DOUBLE PRECISION,
     hit_price_percent DOUBLE PRECISION,
     volatility_coefficient DOUBLE PRECISION,
-    hoursToRun BIGINT, -- Note: column name matches @Column(name = "hoursToRun") exactly
+    hours_to_run BIGINT, -- Note: column name matches @Column(name = "hoursToRun") exactly
     status VARCHAR(255),
     start_time TIMESTAMP,
     end_time TIMESTAMP,
