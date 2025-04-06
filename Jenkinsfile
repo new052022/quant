@@ -68,9 +68,9 @@ pipeline {
                         "DB_HOST=${env.DB_HOST}",
                         "SECRET_NUMBER=${env.SECRET_NUMBER}",
                         "ALGORITHM=${env.ALGORITHM}",
-                         "STRATEGY_URL=${env.STRATEGY_URL}"
-                         "RUN_STRATEGY=${env.RUN_STRATEGY}"
-                         "ORDERS_URL=${env.ORDERS_URL}"
+                         "STRATEGY_URL=${env.STRATEGY_URL}",
+                         "RUN_STRATEGY=${env.RUN_STRATEGY}",
+                         "ORDERS_URL=${env.ORDERS_URL}",
                          "USERS_URL=${env.USERS_URL}"
                     ]) {
                         sh '''
