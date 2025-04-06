@@ -90,13 +90,15 @@ public class MoneyManagementService {
         }
     }
 
-    private void setOrdersSize(@NonNull List<Order> ordersToCheck, BalanceInfo usdtBalance, SessionSettings settings) {
+    private void setOrdersSize(@NonNull List<Order> ordersToCheck, BalanceInfo usdtBalance,
+                               SessionSettings settings) {
         ordersToCheck.forEach(order -> {
             order.setSize((usdtBalance.totalBalance()
                     .add(usdtBalance.unPnl()))
                     .multiply(settings.leverage())
-                    .multiply(settings.getOrderSizePercentDecimal().get()));
-            log.info("Order size for symbol {} is {}", order.getParams().getSymbol(), order.getSize());
+                    .multiply(settings.getOrderSizePercentDecimal().get())
+                    .divide(BigDecimal.valueOf(order.getOpenPrice())));
+            log.info("Order price for symbol {} is {}", order.getParams().getSymbol(), order.getSize());
         });
     }
 

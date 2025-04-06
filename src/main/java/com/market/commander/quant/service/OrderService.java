@@ -31,6 +31,7 @@ public class OrderService {
         List<Order> newOrders = results.stream()
                 .map(result -> Order.builder()
                         .status(OrderStatus.NEW)
+                        .openPrice(result.getMinEntryPrice())
                         .params(result)
                         .build())
                 .toList();
