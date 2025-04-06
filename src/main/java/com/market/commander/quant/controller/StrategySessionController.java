@@ -1,10 +1,12 @@
 package com.market.commander.quant.controller;
 
+import com.market.commander.quant.dto.StopSessionRequestDto;
 import com.market.commander.quant.service.StrategySessionService;
 import com.market.commander.quant.dto.RunSessionResponseDto;
 import com.market.commander.quant.dto.RunStrategyRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,13 @@ public class StrategySessionController {
     @PostMapping
     public ResponseEntity<RunSessionResponseDto> executeStrategySession(@RequestBody RunStrategyRequestDto inputs) {
         return ResponseEntity.ok(strategySessionService.runStrategySession(inputs));
+    }
+
+    @SneakyThrows
+    @PostMapping
+    public ResponseEntity<HttpStatus> stopSession(@RequestBody StopSessionRequestDto request) {
+        strategySessionService.stopSession(request);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
 }
