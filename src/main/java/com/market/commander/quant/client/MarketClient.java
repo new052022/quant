@@ -3,6 +3,7 @@ package com.market.commander.quant.client;
 import com.market.commander.quant.dto.AssetContractResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -10,6 +11,6 @@ import java.util.List;
 public interface MarketClient {
 
     @GetMapping("/asset-price/${market-data.asset-details}")
-    List<AssetContractResponseDto> getAssetsByParams(String exchange);
+    List<AssetContractResponseDto> getAssetsByParams(@RequestParam String exchange);
 
 }
