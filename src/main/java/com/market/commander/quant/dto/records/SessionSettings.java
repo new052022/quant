@@ -14,7 +14,7 @@ public record SessionSettings(Double maxAssetPositionsSizePercent, BigDecimal le
 
     public SessionSettings(StrategySession session) {
         this(
-                session.getMaxAssetPositionsSizePercent(),
+                session.getMaxAssetOpenOrdersSizePercent(),
                 Optional.ofNullable(session.getLeverage())
                         .filter(l -> l > 0)
                         .map(BigDecimal::valueOf)
