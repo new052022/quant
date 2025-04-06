@@ -42,6 +42,7 @@ public class StrategyExecutionService {
                     }
                     List<Order> orders = orderService.createOrders(results);
                     moneyManagementService.checkOrdersConditions(orders, session);
+                    log.info("Starting to open orders (count): {}", orders.size());
                     orderService.openOrders(orders);
                 } else {
                     sessionsToClose.add(session);
