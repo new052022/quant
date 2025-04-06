@@ -56,13 +56,6 @@ public class StrategySessionService {
         session.setEndTime(now.plusHours(session.getHoursToRun()));
     }
 
-    private void checkActiveSessions(String exchange, Long userId) {
-        boolean hasActiveSession = strategySessionRepository.existsActiveSession(exchange, userId, SessionStatus.ACTIVE);
-        if (hasActiveSession) {
-            throw new IllegalStateException("Active session already exists for exchange: " + exchange + " and user ID: " + userId);
-        }
-    }
-
     @Transactional
     public void stopSession(StopSessionRequestDto request) {
         StrategySession session = strategySessionRepository.findByUser_IdAndExchangeAndStatus(
@@ -70,5 +63,12 @@ public class StrategySessionService {
         session.setStatus(SessionStatus.INACTIVE);
         session.setEndTime(LocalDateTime.now());
         strategySessionRepository.save(session);
+    }
+
+    private void checkActiveSessions(String exchange, Long userId) {
+        boolean hasActiveSession = strategySessionRepository.existsActiveSession(exchange, userId, SessionStatus.ACTIVE);
+        if (hasActiveSession) {
+            throw new IllegalStateException("Active session already exists for exchange: " + exchange + " and user ID: " + userId);
+        }
     }
 }
