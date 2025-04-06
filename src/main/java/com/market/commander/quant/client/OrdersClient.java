@@ -12,10 +12,10 @@ import java.util.List;
 @FeignClient(name = "orders-client", url = "${orders-service.url}")
 public interface OrdersClient {
 
-    @PostMapping("/order_execution/open-orders")
+    @PostMapping("/order-execution/open-orders")
     List<OpenOrderResponseDto> getOpenOrders(GetAssetsDataRequestDto request);
 
-    @PostMapping("/order_execution/open-positions")
+    @PostMapping("/order-execution/open-positions")
     List<OpenPositionResponseDto> getOpenPositions(GetAssetsDataRequestDto request);
 
     @PostMapping("/order-execution/balance")
