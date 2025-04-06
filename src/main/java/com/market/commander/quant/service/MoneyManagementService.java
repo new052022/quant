@@ -125,18 +125,24 @@ public class MoneyManagementService {
 
     private BigDecimal getSize(BalanceInfo usdtBalance, SessionSettings settings, Order order,
                                Map<String, AssetContractResponseDto> paramsBySymbol) {
-        AssetContractResponseDto assetContractResponseDto = paramsBySymbol.get(order.getParams().getSymbol());
-        Double marketLotSize = assetContractResponseDto.getFilters().stream()
-                .filter(filter -> filter.getFilterType().equalsIgnoreCase("MARKET_LOT_SIZE"))
-                .map(FilterTypeResonseDto::getStepSize)
-                .findFirst().orElse(1.0);
-        BigDecimal assetSize = usdtBalance.totalBalance()
-                .add(usdtBalance.unPnl())
-                .multiply(settings.leverage())
-                .multiply(settings.getOrderSizePercentDecimal().get())
-                .divide(BigDecimal.valueOf(order.getOpenPrice()));
-        log.info("market lot size: {}; and asset size: {}", marketLotSize, assetSize);
-        return RoundNumbers.toAssetSize(marketLotSize, assetSize);
+        AssetContractResponseDto assetContractResponseDto = paramsBySymbol.getOrDefault(order.getParams().getSymbol(), null);
+        if (Objects.nonNull(assetContractResponseDto)) {
+            Double marketLotSize = assetContractResponseDto.getFilters().stream()
+                    .filter(filter -> filter.getFilterType().equalsIgnoreCase("MARKET_LOT_SIZE"))
+                    .map(FilterTypeResonseDto::getStepSize)
+                    .findFirst().orElse(1.0);
+            log.info("market lot size is: {}", marketLotSize);
+            BigDecimal assetSize = usdtBalance.totalBalance()
+                    .add(usdtBalance.unPnl())
+                    .multiply(settings.leverage())
+                    .multiply(settings.getOrderSizePercentDecimal().get())
+                    .divide(BigDecimal.valueOf(order.getOpenPrice()));
+            log.info("market lot size: {}; and asset size: {}", marketLotSize, assetSize);
+            return RoundNumbers.toAssetSize(marketLotSize, assetSize);
+        } else {
+            log.error("Symbol params from market data service is missed");
+            return null;
+        }
     }
 
     // ========================================================================
