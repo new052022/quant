@@ -131,7 +131,9 @@ public class MoneyManagementService {
                     .filter(filter -> filter.getFilterType().equalsIgnoreCase("MARKET_LOT_SIZE"))
                     .map(FilterTypeResonseDto::getStepSize)
                     .findFirst().orElse(1.0);
-            log.info("market lot size is: {}", marketLotSize);
+            log.info("market lot size is: {}; leverage: {}, order size percent: {}; order open price: {}",
+                    marketLotSize, settings.leverage(),
+                    settings.getOrderSizePercentDecimal().orElse(new BigDecimal(0)), order.getOpenPrice());
             BigDecimal assetSize = usdtBalance.totalBalance()
                     .add(usdtBalance.unPnl())
                     .multiply(settings.leverage())
