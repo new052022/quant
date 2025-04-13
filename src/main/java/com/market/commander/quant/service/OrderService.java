@@ -2,11 +2,14 @@ package com.market.commander.quant.service;
 
 import com.market.commander.quant.client.OrdersClient;
 import com.market.commander.quant.dto.AccountBalanceDto;
+import com.market.commander.quant.dto.CloseOrdersRequestDto;
 import com.market.commander.quant.dto.CreateOrderRequestDto;
 import com.market.commander.quant.dto.GetAssetsDataRequestDto;
 import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
 import com.market.commander.quant.dto.OrderRequestDto;
+import com.market.commander.quant.dto.StopLossTakeProfitPrice;
+import com.market.commander.quant.dto.SymbolOrderDto;
 import com.market.commander.quant.dto.UserResponseDto;
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;
@@ -15,12 +18,14 @@ import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -71,7 +76,7 @@ public class OrderService {
 
     }
 
-    public List<OpenOrderResponseDto> getOpenOrdersAndPositions(UserResponseDto userDetails) {
+    public List<OpenOrderResponseDto> getOpenOrders(UserResponseDto userDetails) {
         return ordersClient.getOpenOrders(GetAssetsDataRequestDto.builder()
                 .encodedApiKey(userDetails.getApiKey())
                 .encodedSecretKey(userDetails.getSecretKey())
@@ -133,4 +138,23 @@ public class OrderService {
         return request;
     }
 
+    public void closeOrders(Map<String, String> ordersIdToClose, StrategySession session) {
+        UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
+        ordersClient.deleteOrders(CloseOrdersRequestDto.builder()
+                .apiKey(userDetails.getApiKey())
+                .privateKey(userDetails.getSecretKey())
+                .exchange(session.getExchange())
+                .origClientOrderIdList(ordersIdToClose.entrySet().stream()
+                        .map(entry -> SymbolOrderDto.builder()
+                                .orderId(entry.getValue())
+                                .symbol(entry.getKey())
+                                .build())
+                        .toList())
+                .build());
+    }
+
+    public void createTPSLOrders(List<StopLossTakeProfitPrice> tpslPrices,
+                                 Map<String, Pair<Pair<Double, Double>, Boolean>> symbolsData) {
+
+    }
 }

@@ -1,0 +1,2 @@
+alter table strategy_session
+add column is_stream_connection_opened boolean;

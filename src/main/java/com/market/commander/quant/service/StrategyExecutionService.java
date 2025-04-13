@@ -1,10 +1,12 @@
 package com.market.commander.quant.service;
 
+import com.market.commander.quant.dto.WebsocketChannelResultResponse;
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;
 import com.market.commander.quant.entities.StrategySession;
 import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.enums.SessionStatus;
+import com.market.commander.quant.enums.StreamStatusType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StrategyExecutionService {
 
+    private final ExchangeStreamingService exchangeStreamingService;
+
     private final StrategySessionService strategySessionService;
 
     private final StrategyResultsService strategyResultsService;
@@ -31,6 +35,7 @@ public class StrategyExecutionService {
     @Scheduled(cron = "0 0/5 * * * ?")
     public void runActiveSessions() {
         List<StrategySession> sessionsToClose = new ArrayList<>();
+        List<StrategySession> sessionsToSave = new ArrayList<>();
         log.info("Run sessions at {} ", LocalDateTime.now());
         List<StrategySession> sessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         sessions.forEach(session -> {
@@ -46,6 +51,7 @@ public class StrategyExecutionService {
                     log.info("Starting to open orders (count): {}", orders.size());
                     orderService.openOrders(orders, session);
                     this.openWebsocketChannel(orders, session);
+                    sessionsToSave.add(session);
                 } else {
                     sessionsToClose.add(session);
                 }
@@ -53,14 +59,18 @@ public class StrategyExecutionService {
                 log.error("Failed to run session with id: {} with message: {}", session.getId(), e.getMessage());
             }
         });
+        strategySessionService.saveAll(sessionsToSave);
         strategySessionService.closeSessions(sessionsToClose);
         log.info("End sessions running at {} ", LocalDateTime.now());
     }
 
     private void openWebsocketChannel(List<Order> orders, StrategySession session) {
-        if (!CollectionUtils.isEmpty(orders) &&
-                orders.stream().anyMatch(order -> order.getStatus() == OrderStatus.OPEN)) {
-
+        if ((!CollectionUtils.isEmpty(orders) &&
+                orders.stream().anyMatch(order -> order.getStatus() == OrderStatus.OPEN))
+                && !session.getIsStreamConnectionOpened()) {
+            WebsocketChannelResultResponse response = exchangeStreamingService.openWebsocketConnection(session.getUser().getId(),
+                    session.getId(), session.getExchange());
+            session.setIsStreamConnectionOpened(response.getType() == StreamStatusType.ACTIVE);
         }
     }
 

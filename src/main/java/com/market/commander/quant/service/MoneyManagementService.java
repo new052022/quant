@@ -169,7 +169,7 @@ public class MoneyManagementService {
     private Optional<TradingContext> prepareTradingContext(User user, String exchange) {
         try {
             UserResponseDto userDetails = usersService.getUserDetails(user.getExternalId(), exchange);
-            List<OpenOrderResponseDto> openOrders = orderService.getOpenOrdersAndPositions(userDetails);
+            List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
             List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails);
             List<AccountBalanceDto> balances = orderService.getBalances(userDetails);
 

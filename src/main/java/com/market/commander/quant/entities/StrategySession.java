@@ -110,4 +110,7 @@ public class StrategySession extends BaseEntity{
     @Column(name = "balance_session_limit")
     private Double balanceSessionLimit;
 
+    @Column(name = "is_stream_connection_opened")
+    private Boolean isStreamConnectionOpened;
+
 }

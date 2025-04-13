@@ -71,4 +71,8 @@ public class StrategySessionService {
             throw new IllegalStateException("Active session already exists for exchange: " + exchange + " and user ID: " + userId);
         }
     }
+
+    public void saveAll(List<StrategySession> sessionsToSave) {
+        strategySessionRepository.saveAll(sessionsToSave);
+    }
 }
