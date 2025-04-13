@@ -30,7 +30,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class StrategySession extends BaseEntity{
 
     @Id
@@ -106,5 +106,8 @@ public class StrategySession extends BaseEntity{
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "session")
     private Set<StrategyResult> results;
+
+    @Column(name = "balance_session_limit")
+    private Double balanceSessionLimit;
 
 }

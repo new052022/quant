@@ -9,6 +9,7 @@ public enum OrderStatus {
     COMPLETED,              // Completed
     CANCELLED,              // Cancelled
     PENDING,                // Pending
+    BALANCE_LIMIT_EXCEEDED,
     FAILED;                 // Error during processing
 
     // Method to get the human-readable label for the status
@@ -22,6 +23,7 @@ public enum OrderStatus {
             case CANCELLED -> "Cancelled";
             case PENDING -> "Pending";
             case FAILED -> "Error";
+            case BALANCE_LIMIT_EXCEEDED -> "Balance limit is reached";
         };
     }
 

@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class Order extends BaseEntity {
 
     @Id
@@ -49,5 +50,8 @@ public class Order extends BaseEntity {
     @Column(name = "order_status")
     @Enumerated(value = EnumType.STRING)
     private OrderStatus status;
+
+    @Column(name = "filled_amount")
+    private BigDecimal filledAmount;
 
 }

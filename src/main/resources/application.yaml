@@ -48,4 +48,6 @@ users-service:
 market-data:
   url: ${MARKET_URL}
   asset-details: ${ASSET_DETAILS}
+exchange-streaming:
+  url: ${EXCHANGE_STREAMING}
 

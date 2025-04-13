@@ -24,7 +24,7 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class StrategyResult extends BaseEntity {
 
     @Id

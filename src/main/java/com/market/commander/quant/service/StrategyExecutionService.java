@@ -3,6 +3,7 @@ package com.market.commander.quant.service;
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;
 import com.market.commander.quant.entities.StrategySession;
+import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.enums.SessionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class StrategyExecutionService {
                     moneyManagementService.checkOrdersConditions(orders, session);
                     log.info("Starting to open orders (count): {}", orders.size());
                     orderService.openOrders(orders, session);
+                    this.openWebsocketChannel(orders, session);
                 } else {
                     sessionsToClose.add(session);
                 }
@@ -53,6 +55,13 @@ public class StrategyExecutionService {
         });
         strategySessionService.closeSessions(sessionsToClose);
         log.info("End sessions running at {} ", LocalDateTime.now());
+    }
+
+    private void openWebsocketChannel(List<Order> orders, StrategySession session) {
+        if (!CollectionUtils.isEmpty(orders) &&
+                orders.stream().anyMatch(order -> order.getStatus() == OrderStatus.OPEN)) {
+
+        }
     }
 
     private Boolean checkSessionStatus(StrategySession session) {

@@ -6,7 +6,7 @@ import com.market.commander.quant.dto.CreateOrderRequestDto;
 import com.market.commander.quant.dto.GetAssetsDataRequestDto;
 import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
-import com.market.commander.quant.dto.OrderResponseDto;
+import com.market.commander.quant.dto.OrderRequestDto;
 import com.market.commander.quant.dto.UserResponseDto;
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;
@@ -18,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -50,21 +52,22 @@ public class OrderService {
 
     @Transactional
     public void openOrders(List<Order> orders, StrategySession session) {
-        List<Order> openedOrders = new ArrayList<>();
         Long userExternalId = session.getUser().getExternalId();
         String exchange = session.getExchange();
         UserResponseDto userDetails = usersService.getUserDetails(userExternalId, exchange);
-        orders.forEach(order -> {
-            try {
-                CreateOrderRequestDto request = this.buildOrderRequest(order, exchange, userDetails);
-                ordersClient.openOrder(request);
-                order.setStatus(OrderStatus.OPEN);
-                openedOrders.add(order);
-            } catch (Exception e) {
-                log.error("Error during opening the order with id {} with message: {}", order.getId(), e.getMessage());
-            }
-            orderRepository.saveAll(openedOrders);
-        });
+        orders.stream()
+                .filter(order -> order.getStatus() == OrderStatus.NEW)
+                .forEach(order -> {
+                    try {
+                        CreateOrderRequestDto request = this.buildOrderRequest(order, exchange, userDetails);
+                        ordersClient.openOrder(request);
+                        order.setStatus(OrderStatus.OPEN);
+                    } catch (Exception e) {
+                        log.error("Error during opening the order with id {} with message: {}", order.getId(), e.getMessage());
+                        order.setStatus(OrderStatus.FAILED);
+                    }
+                    orderRepository.saveAll(orders);
+                });
 
     }
 
@@ -92,7 +95,30 @@ public class OrderService {
                 .build());
     }
 
-    private static CreateOrderRequestDto buildOrderRequest(Order order, String exchange, UserResponseDto userDetails) {
+    public void updateOrderResult(OrderRequestDto request) {
+        Order order = this.findById(Long.valueOf(request.getOrderId()));
+        BigDecimal newFilledAmount = order.getFilledAmount().add(BigDecimal.valueOf(request.getOrderAmount()));
+        order.setFilledAmount(newFilledAmount);
+        BigDecimal size = order.getSize();
+        if (size.compareTo(BigDecimal.ZERO) == 0) {
+            throw new IllegalArgumentException("Order size cannot be zero");
+        }
+        BigDecimal fillPercentage = newFilledAmount.divide(size, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+        if (fillPercentage.compareTo(BigDecimal.valueOf(95)) >= 0) {
+            order.setStatus(OrderStatus.COMPLETED);
+        }
+        orderRepository.save(order);
+        log.info("Order updated: ID={}, Filled Amount={}, Fill Percentage={}%{}",
+                order.getId(), newFilledAmount, fillPercentage,
+                fillPercentage.compareTo(BigDecimal.valueOf(95)) >= 0 ? ", Status=COMPLETED" : "");
+    }
+
+    public Order findById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() ->
+                new NoSuchElementException(String.format("Order with id %d doesn't exist", id)));
+    }
+
+    private CreateOrderRequestDto buildOrderRequest(Order order, String exchange, UserResponseDto userDetails) {
         CreateOrderRequestDto request = new CreateOrderRequestDto();
         request.setExchange(exchange);
         request.setSymbol(order.getParams().getSymbol());
@@ -106,4 +132,5 @@ public class OrderService {
         request.setNewClientOrderId(order.getId().toString());
         return request;
     }
+
 }

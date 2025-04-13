@@ -1,0 +1,2 @@
+alter table strategy_session
+add column balance_session_limit DOUBLE PRECISION;

@@ -80,10 +80,12 @@ public class MoneyManagementService {
             return createResultMapForAll(ordersToCheck, OrderStatus.FAILED, "Missing USDT Balance");
         }
         BalanceInfo usdtBalance = usdtBalanceInfoOpt.get();
-
         SessionSettings settings = new SessionSettings(session);
 
         this.setOrdersSize(ordersToCheck, usdtBalance, settings, session);
+        if (this.isBalanceLimitReached(usdtBalance, session.getBalanceSessionLimit(), ordersToCheck)) {
+            return createResultMapForAll(ordersToCheck, OrderStatus.BALANCE_LIMIT_EXCEEDED, "Missing USDT Balance");
+        }
         // 4. Group Orders to Check
         Map<String, List<Order>> ordersToCheckBySymbol = ordersToCheck.stream()
                 .filter(o -> o != null && o.getParams() != null && o.getParams().getSymbol() != null)
@@ -95,6 +97,19 @@ public class MoneyManagementService {
         } else {
             return checkInsufficientFunds(ordersToCheck, settings, usdtBalance);
         }
+    }
+
+    private Boolean isBalanceLimitReached(BalanceInfo usdtBalance, Double balanceSessionLimit, List<Order> ordersToCheck) {
+        BigDecimal totalBalance = usdtBalance.totalBalance();
+        BigDecimal availableBalance = usdtBalance.availableBalance();
+        BigDecimal usedBalance = totalBalance.subtract(availableBalance);
+        BigDecimal usagePercentage = usedBalance.divide(totalBalance, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+        if (usagePercentage.compareTo(BigDecimal.valueOf(balanceSessionLimit)) > 0) {
+            log.warn("Balance limit exceeded: Used {}%, Limit {}%", usagePercentage, balanceSessionLimit);
+            return true;
+        }
+        log.info("Balance usage within limits: Used {}%, Limit {}%", usagePercentage, balanceSessionLimit);
+        return false;
     }
 
     private void setOrdersSize(@NonNull List<Order> ordersToCheck, BalanceInfo usdtBalance,

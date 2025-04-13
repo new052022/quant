@@ -73,7 +73,8 @@ pipeline {
                          "ORDERS_URL=${env.ORDERS_URL}",
                          "USERS_URL=${env.USERS_URL}",
                          "MARKET_URL=${env.MARKET_URL}",
-                         "ASSET_DETAILS=${env.ASSET_DETAILS}"
+                         "ASSET_DETAILS=${env.ASSET_DETAILS}",
+                         "EXCHANGE_STREAMING=${env.EXCHANGE_STREAMING}"
                     ]) {
                         sh '''
                         echo "Stopping and removing previous container..."
@@ -95,6 +96,7 @@ pipeline {
                             -e USERS_URL="$USERS_URL" \
                             -e MARKET_URL="$MARKET_URL" \
                             -e ASSET_DETAILS="$ASSET_DETAILS" \
+                            -e EXCHANGE_STREAMING="$EXCHANGE_STREAMING" \
                             ${registry}:${BUILD_NUMBER}
                         '''
                     }

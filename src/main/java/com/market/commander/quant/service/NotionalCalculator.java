@@ -58,7 +58,7 @@ public class NotionalCalculator {
                         log.warn("Cannot calculate notional for new order id {} due to missing data", order.getId());
                         return BigDecimal.ZERO;
                     }
-                    return order.getSize();
+                    return order.getSize().multiply(BigDecimal.valueOf(order.getOpenPrice()));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

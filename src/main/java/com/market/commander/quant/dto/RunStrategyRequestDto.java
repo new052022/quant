@@ -59,6 +59,8 @@ public class RunStrategyRequestDto {
 
     private Long hoursToRun;
 
+    private Double balanceSessionLimit;
+
     @Override
     public String toString() {
         return new StringJoiner(", ", RunStrategyRequestDto.class.getSimpleName() + "[", "]")
@@ -81,6 +83,7 @@ public class RunStrategyRequestDto {
                 .add("hitPricePercent=" + hitPricePercent)
                 .add("atrStopLossCoefficient=" + atrStopLossCoefficient)
                 .add("atrTakeProfitCoefficient=" + atrTakeProfitCoefficient)
+                .add("balanceSessionLimit=" + balanceSessionLimit)
                 .toString();
     }
 

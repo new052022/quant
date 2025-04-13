@@ -7,3 +7,7 @@ databaseChangeLog:
       file: db/changelog/3032025_create_orders_table.sql
   - include:
       file: db/changelog/3032025_create_strategy_result.sql
+  - include:
+      file: db/changelog/13042025_alter_table_strategy_session.sql
+  - include:
+      file: db/changelog/13042025_alter_table_orders.sql
