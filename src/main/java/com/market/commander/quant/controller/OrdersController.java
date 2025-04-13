@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/strategy-execution")
+@RequestMapping("/orders")
 public class OrdersController {
 
     private final OrderService orderService;
 
     @SneakyThrows
     @PostMapping
-    public ResponseEntity<HttpStatus> executeStrategySession(@RequestBody OrderRequestDto request) {
+    public ResponseEntity<HttpStatus> addOrderResult(@RequestBody OrderRequestDto request) {
         orderService.updateOrderResult(request);
         return ResponseEntity.ok(HttpStatus.OK);
     }
