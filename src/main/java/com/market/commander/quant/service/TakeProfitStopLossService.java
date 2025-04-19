@@ -53,11 +53,14 @@ public class TakeProfitStopLossService {
                         .collect(Collectors.toMap(AssetContractResponseDto::getSymbol, Function.identity()));
                 UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
                 List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
+                log.info("Size of open orders: {}", openOrders.size());
                 Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders, session.getSymbols());
+                log.info("Size of open orders to close: {}", ordersIdToClose.size());
                 orderService.closeOrders(ordersIdToClose, session);
                 List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails).stream()
                         .filter(position -> !inactiveSymbols.containsKey(position.getSymbol()))
                         .toList();
+                log.info("Size of open positions: {}", openPositions.size());
                 Map<String, Pair<Pair<Double, Double>, Boolean>> positionSizesBySymbol = this.getPositionSizeBySymbol(openPositions);
                 List<StopLossTakeProfitPrice> tpslPrices = strategyResultsService.getStrategyTPSLResults(
                         session, positionSizesBySymbol);

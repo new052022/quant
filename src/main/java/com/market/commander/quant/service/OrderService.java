@@ -147,6 +147,7 @@ public class OrderService {
         tpslPrices.forEach(tpslOrderData -> {
             try {
                 String symbol = tpslOrderData.getSymbol();
+                log.info("Open order for symbol: {}", symbol);
                 ordersClient.openOrder(this.buildTPSLOrder(symbol,
                         symbolsData.get(symbol), userDetails, tpslOrderData.getStopLoss(), paramsBySymbol));
                 ordersClient.openOrder(this.buildTPSLOrder(symbol,
@@ -172,7 +173,7 @@ public class OrderService {
         request.setTimeInForce("GTC");
         request.setApiKey(userDetails.getApiKey());
         request.setPrivateKey(userDetails.getSecretKey());
-        request.setType(this.defineOrderType(symbolData,orderPrice));
+        request.setType(this.defineOrderType(symbolData, orderPrice));
         return request;
     }
 
