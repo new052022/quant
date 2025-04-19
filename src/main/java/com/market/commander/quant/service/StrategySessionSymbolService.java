@@ -5,6 +5,7 @@ import com.market.commander.quant.entities.StrategySession;
 import com.market.commander.quant.entities.StrategySessionSymbol;
 import com.market.commander.quant.entities.Symbol;
 import com.market.commander.quant.enums.OrderStatus;
+import com.market.commander.quant.repository.StrategySessionSymbolRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StrategySessionSymbolService {
 
+    private final StrategySessionSymbolRepository strategySessionSymbolRepository;
+
     public List<StrategySessionSymbol> buildStrategySessionSymbols(StrategySession session,
                                                                    List<Symbol> symbols, Boolean isActive) {
-        return symbols.stream()
+        List<StrategySessionSymbol> sessionSymbols = symbols.stream()
                 .map(symbol -> this.buildStrategySessionSymbol(symbol, session, isActive))
                 .toList();
+        return strategySessionSymbolRepository.saveAll(sessionSymbols);
     }
 
     public void updateOrdersWithExcludedSymbols(StrategySession session, List<Order> orders) {
