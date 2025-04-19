@@ -2,8 +2,10 @@ package com.market.commander.quant.service;
 
 import com.market.commander.quant.client.OrdersClient;
 import com.market.commander.quant.dto.AccountBalanceDto;
+import com.market.commander.quant.dto.AssetContractResponseDto;
 import com.market.commander.quant.dto.CloseOrdersRequestDto;
 import com.market.commander.quant.dto.CreateOrderRequestDto;
+import com.market.commander.quant.dto.FilterTypeResonseDto;
 import com.market.commander.quant.dto.GetAssetsDataRequestDto;
 import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
@@ -17,6 +19,7 @@ import com.market.commander.quant.entities.StrategySession;
 import com.market.commander.quant.enums.BinanceOrderType;
 import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.repository.OrderRepository;
+import com.market.commander.quant.util.RoundNumbers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
@@ -139,15 +142,15 @@ public class OrderService {
                 .build());
     }
 
-    public void createTPSLOrders(List<StopLossTakeProfitPrice> tpslPrices,
+    public void createTPSLOrders(Map<String, AssetContractResponseDto> paramsBySymbol, List<StopLossTakeProfitPrice> tpslPrices,
                                  Map<String, Pair<Pair<Double, Double>, Boolean>> symbolsData, UserResponseDto userDetails) {
         tpslPrices.forEach(tpslOrderData -> {
             try {
                 String symbol = tpslOrderData.getSymbol();
                 ordersClient.openOrder(this.buildTPSLOrder(symbol,
-                        symbolsData.get(symbol), userDetails, tpslOrderData.getStopLoss()));
+                        symbolsData.get(symbol), userDetails, tpslOrderData.getStopLoss(), paramsBySymbol));
                 ordersClient.openOrder(this.buildTPSLOrder(symbol,
-                        symbolsData.get(symbol), userDetails, tpslOrderData.getTakeProfit()));
+                        symbolsData.get(symbol), userDetails, tpslOrderData.getTakeProfit(), paramsBySymbol));
             } catch (Exception e) {
                 log.error("Failed to create TPSL order for data: {}", tpslOrderData);
             }
@@ -155,15 +158,17 @@ public class OrderService {
     }
 
     private CreateOrderRequestDto buildTPSLOrder(String symbol, Pair<Pair<Double, Double>, Boolean> symbolData,
-                                                 UserResponseDto userDetails, Double orderPrice) {
+                                                 UserResponseDto userDetails, Double orderPrice,
+                                                 Map<String, AssetContractResponseDto> paramsBySymbol) {
+        String roundedEntryPrice = this.getOpePrice(symbol, orderPrice, paramsBySymbol).toString();
         String side = this.defineOrderSide(symbolData.getSecond());
         CreateOrderRequestDto request = new CreateOrderRequestDto();
         request.setExchange(userDetails.getExchangeName());
         request.setSymbol(symbol);
-        request.setStopPrice(orderPrice.toString());
+        request.setStopPrice(roundedEntryPrice);
         request.setQuantity(symbolData.getFirst().getFirst().toString());
         request.setSide(side);
-        request.setPrice(orderPrice.toString());
+        request.setPrice(roundedEntryPrice);
         request.setTimeInForce("GTC");
         request.setApiKey(userDetails.getApiKey());
         request.setPrivateKey(userDetails.getSecretKey());
@@ -200,4 +205,14 @@ public class OrderService {
         request.setNewClientOrderId(order.getId().toString());
         return request;
     }
+
+    private Double getOpePrice(String symbol, Double openPrice, Map<String, AssetContractResponseDto> paramsBySymbol) {
+        return RoundNumbers.toOpenPriceByAssetParam(
+                paramsBySymbol.get(symbol).getFilters()
+                        .stream()
+                        .filter(filter -> filter.getFilterType().equalsIgnoreCase("PRICE_FILTER"))
+                        .map(FilterTypeResonseDto::getTickSize)
+                        .findFirst().orElse(0.01), openPrice);
+    }
+
 }

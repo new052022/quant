@@ -1,5 +1,7 @@
 package com.market.commander.quant.service;
 
+import com.market.commander.quant.client.MarketClient;
+import com.market.commander.quant.dto.AssetContractResponseDto;
 import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
 import com.market.commander.quant.dto.StopLossTakeProfitPrice;
@@ -19,6 +21,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,12 +37,17 @@ public class TakeProfitStopLossService {
 
     private final UsersService usersService;
 
+    private final MarketClient marketClient;
+
     @Scheduled(cron = "0 0/10 * * * ?")
     public void updateTakeProfitStopLossOrders() {
         log.info("Start TPSL orders updating");
         List<StrategySession> activeSessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         activeSessions.forEach(session -> {
             try {
+                List<AssetContractResponseDto> assetsByParams = marketClient.getAssetsByParams(session.getExchange());
+                Map<String, AssetContractResponseDto> paramsBySymbol = assetsByParams.stream()
+                        .collect(Collectors.toMap(AssetContractResponseDto::getSymbol, Function.identity()));
                 UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
                 List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
                 Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders, session.getSymbols());
@@ -48,7 +56,7 @@ public class TakeProfitStopLossService {
                 Map<String, Pair<Pair<Double, Double>, Boolean>> positionSizesBySymbol = this.getPositionSizeBySymbol(openPositions);
                 List<StopLossTakeProfitPrice> tpslPrices = strategyResultsService.getStrategyTPSLResults(
                         session, positionSizesBySymbol);
-                orderService.createTPSLOrders(tpslPrices, positionSizesBySymbol, userDetails);
+                orderService.createTPSLOrders(paramsBySymbol, tpslPrices, positionSizesBySymbol, userDetails);
             } catch (Exception e) {
                 log.error("Failed to open TPSL orders for session with id {} with message: {}", session.getId(), e.getMessage());
             }
