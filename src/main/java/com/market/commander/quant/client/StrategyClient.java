@@ -17,7 +17,7 @@ public interface StrategyClient {
     @PostMapping("${strategy-service.run-strategy}")
     StrategyResultsResponseDto getStrategyResults(StrategyParamsRequestDto params);
 
-    @PostMapping("/tpsl")
+    @PostMapping("${strategy-service.run-strategy}/tpsl")
     List<StopLossTakeProfitPrice> getTpSlResults(@RequestBody List<TpSlStrategyRequestDto> tpslRequest);
 
 }
