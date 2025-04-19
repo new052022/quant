@@ -8,6 +8,7 @@ import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.repository.StrategySessionSymbolRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,9 @@ public class StrategySessionSymbolService {
     }
 
     public void updateOrdersWithExcludedSymbols(StrategySession session, List<Order> orders) {
+        if(CollectionUtils.isEmpty(session.getSymbols())){
+            return;
+        }
         Map<String, StrategySessionSymbol> sessionsBySymbol = session.getSymbols().stream()
                 .collect(Collectors.toMap(symbol -> symbol.getSymbol().getName(), Function.identity()));
         orders.forEach(order -> {

@@ -37,9 +37,9 @@ public class TakeProfitStopLossService {
         List<StrategySession> activeSessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         activeSessions.forEach(session -> {
             try {
-                UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
-                List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
-                Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders);
+//                UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
+//                List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
+//                Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders);
 //                orderService.closeOrders(ordersIdToClose, session);
 //                List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails);
 //                Map<String, Pair<Pair<Double, Double>, Boolean>> positionSizesBySymbol = this.getPositionSizeBySymbol(openPositions);
