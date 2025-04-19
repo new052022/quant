@@ -12,28 +12,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Entity
-@Table(name = "open_positions")
+@Table(name = "symbol")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class OpenPosition extends BaseEntity{
+public class Symbol {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "entry_price")
-    private Double entryPrice;
-
-    @Column(name = "symbol")
-    private String symbol;
-
-    @Column(name = "entry_date")
-    private LocalDateTime entryDate;
+    @Column(name = "name")
+    private String name;
 
 }

@@ -107,6 +107,11 @@ public class StrategySession extends BaseEntity{
     @OneToMany(mappedBy = "session")
     private Set<StrategyResult> results;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "strategySession")
+    private Set<StrategySessionSymbol> symbols;
+
     @Column(name = "balance_session_limit")
     private Double balanceSessionLimit;
 

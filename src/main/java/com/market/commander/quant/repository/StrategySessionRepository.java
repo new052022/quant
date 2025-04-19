@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface StrategySessionRepository extends JpaRepository<StrategySession, Long> {
 
-    @EntityGraph(attributePaths = {"results", "user", "results"})
+    @EntityGraph(attributePaths = {"results", "user", "results", "symbols"})
     List<StrategySession> findByStatus(SessionStatus status);
 
     @Query("SELECT COUNT(s) > 0 FROM StrategySession s " +

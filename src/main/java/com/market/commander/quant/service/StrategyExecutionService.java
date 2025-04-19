@@ -22,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StrategyExecutionService {
 
+    private final StrategySessionSymbolService strategySessionSymbolService;
+
     private final ExchangeStreamingService exchangeStreamingService;
 
     private final StrategySessionService strategySessionService;
@@ -48,6 +50,7 @@ public class StrategyExecutionService {
                     }
                     List<Order> orders = orderService.createOrders(results);
                     moneyManagementService.checkOrdersConditions(orders, session);
+                    strategySessionSymbolService.updateOrdersWithExcludedSymbols(session, orders);
                     log.info("Starting to open orders (count): {}", orders.size());
                     orderService.openOrders(orders, session);
                     this.openWebsocketChannel(orders, session);
