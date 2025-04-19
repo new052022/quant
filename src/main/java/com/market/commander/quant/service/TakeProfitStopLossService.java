@@ -45,9 +45,11 @@ public class TakeProfitStopLossService {
         List<StrategySession> activeSessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         activeSessions.forEach(session -> {
             try {
+                log.info("Start updating TPSL for session id {}", session.getId());
                 Map<String, StrategySessionSymbol> inactiveSymbols = session.getSymbols().stream()
                         .filter(symbol -> !Boolean.TRUE.equals(symbol.getIsActive()))
                         .collect(Collectors.toMap(symbol -> symbol.getSymbol().getName(), Function.identity()));
+                log.info("The size of excluded symbols is: {}", inactiveSymbols.size());
                 List<AssetContractResponseDto> assetsByParams = marketClient.getAssetsByParams(session.getExchange());
                 Map<String, AssetContractResponseDto> paramsBySymbol = assetsByParams.stream()
                         .collect(Collectors.toMap(AssetContractResponseDto::getSymbol, Function.identity()));

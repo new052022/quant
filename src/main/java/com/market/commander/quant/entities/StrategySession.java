@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -110,7 +111,7 @@ public class StrategySession extends BaseEntity{
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "strategySession")
-    private Set<StrategySessionSymbol> symbols;
+    private Set<StrategySessionSymbol> symbols = new HashSet<>();
 
     @Column(name = "balance_session_limit")
     private Double balanceSessionLimit;
