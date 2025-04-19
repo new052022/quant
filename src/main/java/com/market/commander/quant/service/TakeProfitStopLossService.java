@@ -36,6 +36,7 @@ public class TakeProfitStopLossService {
 
     @Scheduled(cron = "0 0/10 * * * ?")
     public void updateTakeProfitStopLossOrders() {
+        log.info("Start TPSL orders updating");
         List<StrategySession> activeSessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         activeSessions.forEach(session -> {
             try {
@@ -52,7 +53,7 @@ public class TakeProfitStopLossService {
                 log.error("Failed to open TPSL orders for session with id {} with message: {}", session.getId(), e.getMessage());
             }
         });
-
+        log.info("Finished TPSL orders updating");
     }
 
     private Map<String, Pair<Pair<Double, Double>, Boolean>> getPositionSizeBySymbol(List<OpenPositionResponseDto> openPositions) {

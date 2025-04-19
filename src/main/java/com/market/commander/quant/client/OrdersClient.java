@@ -8,6 +8,8 @@ import com.market.commander.quant.dto.OpenOrderResponseDto;
 import com.market.commander.quant.dto.OpenPositionResponseDto;
 import com.market.commander.quant.dto.OrderResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -29,6 +31,6 @@ public interface OrdersClient {
     OrderResponseDto openOrder(CreateOrderRequestDto request);
 
     @DeleteMapping("/order-execution")
-    OrderResponseDto deleteOrders(CloseOrdersRequestDto request);
+    ResponseEntity<HttpStatus> deleteOrders(CloseOrdersRequestDto request);
 
 }
