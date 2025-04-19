@@ -14,6 +14,7 @@ import com.market.commander.quant.dto.UserResponseDto;
 import com.market.commander.quant.entities.Order;
 import com.market.commander.quant.entities.StrategyResult;
 import com.market.commander.quant.entities.StrategySession;
+import com.market.commander.quant.enums.BinanceOrderType;
 import com.market.commander.quant.enums.OrderStatus;
 import com.market.commander.quant.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -166,7 +167,19 @@ public class OrderService {
         request.setTimeInForce("GTC");
         request.setApiKey(userDetails.getApiKey());
         request.setPrivateKey(userDetails.getSecretKey());
+        request.setType(this.defineOrderType(symbolData,orderPrice));
         return request;
+    }
+
+    private String defineOrderType(Pair<Pair<Double, Double>, Boolean> symbolData, Double orderPrice) {
+        Boolean isPositionLong = symbolData.getSecond(); // true для длинной позиции, false для короткой
+        Double openPositionPrice = symbolData.getFirst().getSecond(); // Цена открытия позиции
+        if (isPositionLong) {
+            return orderPrice < openPositionPrice ? BinanceOrderType.STOP.name() : BinanceOrderType.TAKE_PROFIT.name();
+        } else {
+            // Для короткой позиции
+            return orderPrice > openPositionPrice ? BinanceOrderType.STOP.name() : BinanceOrderType.TAKE_PROFIT.name();
+        }
     }
 
     private String defineOrderSide(Boolean isLongPosition) {
