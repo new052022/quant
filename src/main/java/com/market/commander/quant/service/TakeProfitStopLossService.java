@@ -5,6 +5,7 @@ import com.market.commander.quant.dto.OpenPositionResponseDto;
 import com.market.commander.quant.dto.StopLossTakeProfitPrice;
 import com.market.commander.quant.dto.UserResponseDto;
 import com.market.commander.quant.entities.StrategySession;
+import com.market.commander.quant.entities.StrategySessionSymbol;
 import com.market.commander.quant.enums.BinanceOrderType;
 import com.market.commander.quant.enums.SessionStatus;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,15 +39,15 @@ public class TakeProfitStopLossService {
         List<StrategySession> activeSessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         activeSessions.forEach(session -> {
             try {
-//                UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
-//                List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
-//                Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders);
-//                orderService.closeOrders(ordersIdToClose, session);
-//                List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails);
-//                Map<String, Pair<Pair<Double, Double>, Boolean>> positionSizesBySymbol = this.getPositionSizeBySymbol(openPositions);
-//                List<StopLossTakeProfitPrice> tpslPrices = strategyResultsService.getStrategyTPSLResults(
-//                        session, positionSizesBySymbol);
-//                orderService.createTPSLOrders(tpslPrices, positionSizesBySymbol);
+                UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
+                List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
+                Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders, session.getSymbols());
+                orderService.closeOrders(ordersIdToClose, session);
+                List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails);
+                Map<String, Pair<Pair<Double, Double>, Boolean>> positionSizesBySymbol = this.getPositionSizeBySymbol(openPositions);
+                List<StopLossTakeProfitPrice> tpslPrices = strategyResultsService.getStrategyTPSLResults(
+                        session, positionSizesBySymbol);
+                orderService.createTPSLOrders(tpslPrices, positionSizesBySymbol, userDetails);
             } catch (Exception e) {
                 log.error("Failed to open TPSL orders for session with id {} with message: {}", session.getId(), e.getMessage());
             }
@@ -97,9 +99,14 @@ public class TakeProfitStopLossService {
                 ));
     }
 
-    private Map<String, String> getTPSLOrdersIds(List<OpenOrderResponseDto> openOrders) {
+    private Map<String, String> getTPSLOrdersIds(List<OpenOrderResponseDto> openOrders, Set<StrategySessionSymbol> symbols) {
+        Set<String> symbolsToSkip = symbols.stream()
+                .filter(symbol -> !Boolean.TRUE.equals(symbol.getIsActive()))
+                .map(symbol -> symbol.getSymbol().getName())
+                .collect(Collectors.toSet());
         return openOrders.stream()
                 .filter(this::isStopOrTakeProfitOrder)
+                .filter(order -> !symbolsToSkip.contains(order.getSymbol()))
                 .collect(Collectors.toMap(OpenOrderResponseDto::getSymbol,
                         OpenOrderResponseDto::getClientOrderId));
     }

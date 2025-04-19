@@ -21,4 +21,16 @@ public class StopLossTakeProfitPrice {
 
     private String exchange;
 
+    @Override
+    public String toString() {
+        return new StringBuilder("StopLossTakeProfitPrice{")
+                .append("symbol='").append(symbol).append("', ")
+                .append("stopLoss=").append(stopLoss).append(", ")
+                .append("takeProfit=").append(takeProfit).append(", ")
+                .append("userId=").append(userId).append(", ")
+                .append("exchange='").append(exchange).append("'")
+                .append("}")
+                .toString();
+    }
+
 }

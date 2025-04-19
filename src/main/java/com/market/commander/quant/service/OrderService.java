@@ -123,21 +123,6 @@ public class OrderService {
                 new NoSuchElementException(String.format("Order with id %d doesn't exist", id)));
     }
 
-    private CreateOrderRequestDto buildOrderRequest(Order order, String exchange, UserResponseDto userDetails) {
-        CreateOrderRequestDto request = new CreateOrderRequestDto();
-        request.setExchange(exchange);
-        request.setSymbol(order.getParams().getSymbol());
-        request.setPrice(order.getOpenPrice().toString());
-        request.setQuantity(order.getSize().toString());
-        request.setSide(order.getParams().getSide());
-        request.setType("LIMIT");
-        request.setTimeInForce("GTC");
-        request.setApiKey(userDetails.getApiKey());
-        request.setPrivateKey(userDetails.getSecretKey());
-        request.setNewClientOrderId(order.getId().toString());
-        return request;
-    }
-
     public void closeOrders(Map<String, String> ordersIdToClose, StrategySession session) {
         UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
         ordersClient.deleteOrders(CloseOrdersRequestDto.builder()
@@ -154,7 +139,52 @@ public class OrderService {
     }
 
     public void createTPSLOrders(List<StopLossTakeProfitPrice> tpslPrices,
-                                 Map<String, Pair<Pair<Double, Double>, Boolean>> symbolsData) {
+                                 Map<String, Pair<Pair<Double, Double>, Boolean>> symbolsData, UserResponseDto userDetails) {
+        tpslPrices.forEach(tpslOrderData -> {
+            try {
+                String symbol = tpslOrderData.getSymbol();
+                ordersClient.openOrder(this.buildTPSLOrder(symbol,
+                        symbolsData.get(symbol), userDetails, tpslOrderData.getStopLoss()));
+                ordersClient.openOrder(this.buildTPSLOrder(symbol,
+                        symbolsData.get(symbol), userDetails, tpslOrderData.getTakeProfit()));
+            } catch (Exception e) {
+                log.error("Failed to create TPSL order for data: {}", tpslOrderData);
+            }
+        });
+    }
 
+    private CreateOrderRequestDto buildTPSLOrder(String symbol, Pair<Pair<Double, Double>, Boolean> symbolData,
+                                                 UserResponseDto userDetails, Double orderPrice) {
+        String side = this.defineOrderSide(symbolData.getSecond());
+        CreateOrderRequestDto request = new CreateOrderRequestDto();
+        request.setExchange(userDetails.getExchangeName());
+        request.setSymbol(symbol);
+        request.setStopPrice(orderPrice.toString());
+        request.setQuantity(symbolData.getFirst().getFirst().toString());
+        request.setSide(side);
+        request.setPrice(orderPrice.toString());
+        request.setTimeInForce("GTC");
+        request.setApiKey(userDetails.getApiKey());
+        request.setPrivateKey(userDetails.getSecretKey());
+        return request;
+    }
+
+    private String defineOrderSide(Boolean isLongPosition) {
+        return isLongPosition ? "SELL" : "BUY";
+    }
+
+    private CreateOrderRequestDto buildOrderRequest(Order order, String exchange, UserResponseDto userDetails) {
+        CreateOrderRequestDto request = new CreateOrderRequestDto();
+        request.setExchange(exchange);
+        request.setSymbol(order.getParams().getSymbol());
+        request.setPrice(order.getOpenPrice().toString());
+        request.setQuantity(order.getSize().toString());
+        request.setSide(order.getParams().getSide());
+        request.setType("LIMIT");
+        request.setTimeInForce("GTC");
+        request.setApiKey(userDetails.getApiKey());
+        request.setPrivateKey(userDetails.getSecretKey());
+        request.setNewClientOrderId(order.getId().toString());
+        return request;
     }
 }
