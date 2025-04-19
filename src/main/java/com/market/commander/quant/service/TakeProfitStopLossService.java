@@ -45,6 +45,9 @@ public class TakeProfitStopLossService {
         List<StrategySession> activeSessions = strategySessionService.findByStatus(SessionStatus.ACTIVE);
         activeSessions.forEach(session -> {
             try {
+                Map<String, StrategySessionSymbol> inactiveSymbols = session.getSymbols().stream()
+                        .filter(symbol -> !Boolean.TRUE.equals(symbol.getIsActive()))
+                        .collect(Collectors.toMap(symbol -> symbol.getSymbol().getName(), Function.identity()));
                 List<AssetContractResponseDto> assetsByParams = marketClient.getAssetsByParams(session.getExchange());
                 Map<String, AssetContractResponseDto> paramsBySymbol = assetsByParams.stream()
                         .collect(Collectors.toMap(AssetContractResponseDto::getSymbol, Function.identity()));
@@ -52,7 +55,9 @@ public class TakeProfitStopLossService {
                 List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
                 Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders, session.getSymbols());
                 orderService.closeOrders(ordersIdToClose, session);
-                List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails);
+                List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails).stream()
+                        .filter(position -> !inactiveSymbols.containsKey(position.getSymbol()))
+                        .toList();
                 Map<String, Pair<Pair<Double, Double>, Boolean>> positionSizesBySymbol = this.getPositionSizeBySymbol(openPositions);
                 List<StopLossTakeProfitPrice> tpslPrices = strategyResultsService.getStrategyTPSLResults(
                         session, positionSizesBySymbol);
