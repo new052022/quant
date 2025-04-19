@@ -127,17 +127,18 @@ public class OrderService {
                 new NoSuchElementException(String.format("Order with id %d doesn't exist", id)));
     }
 
-    public void closeOrders(Map<String, String> ordersIdToClose, StrategySession session) {
+    public void closeOrders(Map<String, List<OpenOrderResponseDto>> ordersIdToClose, StrategySession session) {
         UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
         ordersClient.deleteOrders(CloseOrdersRequestDto.builder()
                 .apiKey(userDetails.getApiKey())
                 .privateKey(userDetails.getSecretKey())
                 .exchange(session.getExchange())
                 .origClientOrderIdList(ordersIdToClose.entrySet().stream()
-                        .map(entry -> SymbolOrderDto.builder()
-                                .orderId(entry.getValue())
-                                .symbol(entry.getKey())
-                                .build())
+                        .flatMap(entry -> entry.getValue().stream()
+                                .map(order -> SymbolOrderDto.builder()
+                                        .orderId(order.getClientOrderId())
+                                        .symbol(entry.getKey())
+                                        .build()))
                         .toList())
                 .build());
     }

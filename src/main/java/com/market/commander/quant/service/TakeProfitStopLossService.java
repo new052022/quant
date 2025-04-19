@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -56,7 +58,7 @@ public class TakeProfitStopLossService {
                 UserResponseDto userDetails = usersService.getUserDetails(session.getUser().getExternalId(), session.getExchange());
                 List<OpenOrderResponseDto> openOrders = orderService.getOpenOrders(userDetails);
                 log.info("Size of open orders: {}", openOrders.size());
-                Map<String, String> ordersIdToClose = this.getTPSLOrdersIds(openOrders, session.getSymbols());
+                Map<String, List<OpenOrderResponseDto>> ordersIdToClose = this.getTPSLOrdersIds(openOrders, session.getSymbols());
                 log.info("Size of open orders to close: {}", ordersIdToClose.size());
                 orderService.closeOrders(ordersIdToClose, session);
                 List<OpenPositionResponseDto> openPositions = orderService.getOpenPositions(userDetails).stream()
@@ -76,7 +78,7 @@ public class TakeProfitStopLossService {
 
     private Map<String, Pair<Pair<Double, Double>, Boolean>> getPositionSizeBySymbol(List<OpenPositionResponseDto> openPositions) {
         return openPositions.stream()
-                .collect(Collectors.groupingBy(
+                .collect(groupingBy(
                         OpenPositionResponseDto::getSymbol, // Группируем по символу
                         Collectors.collectingAndThen(
                                 Collectors.reducing(
@@ -118,7 +120,8 @@ public class TakeProfitStopLossService {
                 ));
     }
 
-    private Map<String, String> getTPSLOrdersIds(List<OpenOrderResponseDto> openOrders, Set<StrategySessionSymbol> symbols) {
+    private Map<String, List<OpenOrderResponseDto>> getTPSLOrdersIds(List<OpenOrderResponseDto> openOrders,
+                                                                     Set<StrategySessionSymbol> symbols) {
         Set<String> symbolsToSkip = symbols.stream()
                 .filter(symbol -> !Boolean.TRUE.equals(symbol.getIsActive()))
                 .map(symbol -> symbol.getSymbol().getName())
@@ -126,8 +129,7 @@ public class TakeProfitStopLossService {
         return openOrders.stream()
                 .filter(this::isStopOrTakeProfitOrder)
                 .filter(order -> !symbolsToSkip.contains(order.getSymbol()))
-                .collect(Collectors.toMap(OpenOrderResponseDto::getSymbol,
-                        OpenOrderResponseDto::getClientOrderId));
+                .collect(groupingBy(OpenOrderResponseDto::getSymbol));
     }
 
     private boolean isStopOrTakeProfitOrder(OpenOrderResponseDto order) {
